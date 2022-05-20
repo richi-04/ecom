@@ -23,12 +23,13 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('home', views.home, name="home"),
     path('register', views.userdata, name="register"),
-    path('login', views.login, name="login"),
+    path('login', views.login_data, name="login"),
     path('shop', views.shop, name="shop"),
     path('checkout', views.checkout, name="checkout"),
-    path('contact', views.contact, name="contact"),
+    path('contact', views.Contact, name="contact"),
     path('search', views.search, name="search"),
-    path('detail', views.detail, name="detail"),
+    path('detail<int:id>', views.detail, name="detail"),
     path('checkout', views.checkout, name="checkout"),
-    path('cart', views.cart, name="cart")
+    path('cart', views.cart, name="cart"),
+    path('logged',views.logged,name="logged")
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) 

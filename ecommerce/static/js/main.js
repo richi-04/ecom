@@ -85,7 +85,7 @@
 
 
     // Product Quantity
-    $('.quantity button').onClick(function () {
+    $('.quantity button').click(function () {
         var button = $(this);
         var oldValue = button.parent().parent().find('input').val();
         if (button.hasClass('btn-plus')) {
@@ -103,9 +103,36 @@
 })(jQuery);
 
 // nav link active
-$( '.nav-item .nav-link a' ).on('click', 
+$( '.nav-item .nav-link a' ).click( 
                     function () {
             $( '.nav-item .nav-link' ).find( '.nav-item .nav-link active' )
             .removeClass( '.active' );
             $( this ).parent( '.nav-item .nav-link' ).addClass( 'active' );
         });
+
+
+// cart 
+console.log('working');
+if(localStorage.getItem('cart') == null){
+    var cart = {};
+}
+else
+{
+    cart = JSON.parse(localStorage.getItem('cart'));
+    document.getElementById('cart').innerHTML = Object.keys(cart).length;
+}
+$('.cart').click(function(){
+    console.log('clicked');
+    var idstr = this.id.toString();
+    console.log(idstr);
+    if (cart[idstr] !=undefined){
+        cart[idstr] = cart[idstr] + 1;
+    }
+    else
+    {
+        cart[idstr] = 1;
+    }
+    console.log(cart);
+    localStorage.setItem('cart', JSON.stringify(cart));
+    document.getElementById('cart').innerHTML = Object.keys(cart).length;
+});

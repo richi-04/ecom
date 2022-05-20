@@ -4,11 +4,14 @@ from django.contrib.auth.models import User
 
 
 # Create your models here.
+userchoices = [('buyer', 'Buyer'),('seller', 'Seller')] 
 class register(models.Model):
+    fname = models.CharField(max_length=100)
+    lname = models.CharField(max_length=100)
     username = models.CharField(max_length=100)
     email = models.EmailField()
-    number = models.CharField(max_length=100)
     pswd = models.CharField(max_length=100)
+    user = models.CharField(choices=userchoices, max_length=100)
     
 
     def __str__(self):
@@ -58,4 +61,4 @@ class contact(models.Model):
     msg = models.CharField(max_length=200)
 
     def __str__(self):
-        return self(self.name)
+        return self.name

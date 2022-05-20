@@ -9,6 +9,7 @@ from django.contrib.auth.hashers import make_password
 from django.views import View
 from django.core.paginator import Paginator
 from django.db.models import Q
+from django.contrib.auth.models import User, auth 
 
 # Create your views here.
 def home(request):
@@ -17,32 +18,37 @@ def home(request):
 
 def userdata(request):
     if request.method == 'POST':
+        fname = request.POST.get('fname')
+        print("🚀 ~ file: views.py ~ line 22 ~ fname", fname)
+        lname = request.POST.get('lname')
+        print("🚀 ~ file: views.py ~ line 24 ~ lname", lname)
         username = request.POST.get('username')
+        print("🚀 ~ file: views.py ~ line 22 ~ username", username)
         email = request.POST.get('email')
-        number = request.POST.get('number')
+        print("🚀 ~ file: views.py ~ line 24 ~ email", email)
         pswd = request.POST.get('pswd')
         print("🚀 ~ file: views.py ~ line 30 ~ pswd", pswd)
         pswd2 = request.POST.get('pswd2')
 
-        if len(number)<10 or (pswd!=pswd2):
-            messages.error, "Please fill the form correctly"
-            return HttpResponse("fill the form again")
-          
-        else:
-            users = register(username=username, email=email, number=number, pswd=make_password(pswd))
-            users.save()
+        
+        users = User.objects.create_user(first_name=fname,last_name=lname,username=username, email=email, password=pswd)
+        users.save()
+
+        messages.success(request, "Your account has been created...!!!!")
+            
+        return redirect('register')
 
 
     return render(request, 'register.html')
 
-def login(request):
+def login_data(request):
     if request.method == 'POST':
         uname = request.POST.get('username')
         print("🚀 ~ file: views.py ~ line 48 ~ uname", uname)
         pswd = request.POST.get('pswd')
         print("🚀 ~ file: views.py ~ line 50 ~ pswd", pswd)
 
-        user = authenticate(username=uname, pswd=pswd)
+        user = authenticate(username=uname, password=pswd)
         print("🚀 ~ file: views.py ~ line 53 ~ user", user)
 
         if user is not None:
@@ -83,14 +89,19 @@ def checkout(request):
 
     return render(request, 'checkout.html')
 
-def contact(request):
+def Contact(request):
     if request.method == 'POST':
         name = request.POST.get('name')
+        print("🚀 ~ file: views.py ~ line 89 ~ name", name)
         email = request.POST.get('email')
+        print("🚀 ~ file: views.py ~ line 91 ~ email", email)
         subject = request.POST.get('subject')
+        print("🚀 ~ file: views.py ~ line 93 ~ subject", subject)
         msg = request.POST.get('msg')
+        print("🚀 ~ file: views.py ~ line 95 ~ msg", msg)
 
         customer_dtl = contact(name=name, email=email, subject=subject, msg=msg)
+        print("🚀 ~ file: views.py ~ line 98 ~ customer_dtl", customer_dtl)
         customer_dtl.save()
 
     return render(request, 'contact.html')
@@ -102,11 +113,16 @@ def search(request):
         return render(request, 'search.html', {'cat_search': cat_search})
     return render(request, 'search.html')
 
-def detail(request):
-    return render(request, 'detail.html')
+def detail(request, id):
+    product =  Product.objects.filter(id=id)
+
+    return render(request, 'detail.html', {'product': product})
 
 def checkout(request):
     return render(request, 'checkout.html')
 
 def cart(request):
     return render(request, 'cart.html')
+
+def logged(request):
+    return render(request, "logged.html")
