@@ -2,7 +2,7 @@ from unicodedata import category
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.contrib import messages
-from .models import Product, register, customer, contact
+from .models import Product, register, customer, contact, cart
 from math import ceil
 from django.contrib.auth import authenticate,login
 from django.contrib.auth.hashers import make_password
@@ -13,7 +13,9 @@ from django.contrib.auth.models import User, auth
 
 # Create your views here.
 def home(request):
-    return render(request, 'index.html')
+    p = Product.objects.all()
+
+    return render(request, 'index.html', {'p':p})
 
 
 def userdata(request):
@@ -55,6 +57,7 @@ def login_data(request):
             login(request,user)
 
             return redirect('home')
+
         else:
             messages.error, "Incorrect username or password"
             return HttpResponse("enter again the correct detail")
@@ -116,13 +119,25 @@ def search(request):
 def detail(request, id):
     product =  Product.objects.filter(id=id)
 
-    return render(request, 'detail.html', {'product': product})
+    d_p = Product.objects.all()
+    context = {
+        'product': product,
+        'd_p': d_p
+    }
+
+    return render(request, 'detail.html', context)
 
 def checkout(request):
     return render(request, 'checkout.html')
 
 def cart(request):
+    user = request.user 
+    print("🚀 ~ file: views.py ~ line 134 ~ user", user)
+    product = request.GET.get('p_id')
+    print("🚀 ~ file: views.py ~ line 135 ~ product", product)
+    cart(user=user, product=product).save()
+    print("🚀 ~ file: views.py ~ line 138 ~ c_cart", cart)
+    
     return render(request, 'cart.html')
 
-def logged(request):
-    return render(request, "logged.html")
+

@@ -79,16 +79,18 @@
                     </div>
                 </form>
             </div>
+            {% if request.user.is_authenticated %}
             <div class="col-lg-3 col-6 text-right">
                 <a href="" class="btn border">
                     <i class="fas fa-heart text-primary"></i>
-                    <span class="badge">0</span>
+                    <span id="like" class="badge">0</span>
                 </a>
                 <a href="" class="btn border">
                     <i class="fas fa-shopping-cart text-primary"></i>
                     <span id="cart" class="badge">0</span>
                 </a>
             </div>
+            {% endif %} 
         </div>
     </div>
     <!-- Topbar End -->
@@ -136,7 +138,6 @@
                         <div class="navbar-nav mr-auto py-0">
                             <a href="home" class="nav-item nav-link active">Home</a>
                             <a href="shop" class="nav-item nav-link">Shop</a>
-                            <a href="detail" class="nav-item nav-link">Shop Detail</a>
                             <div class="nav-item dropdown">
                                 <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Pages</a>
                                 <div class="dropdown-menu rounded-0 m-0">
@@ -147,8 +148,13 @@
                             <a href="contact" class="nav-item nav-link">Contact</a>
                         </div>
                         <div class="navbar-nav ml-auto py-0">
+                            {% if request.user.is_authenticated %}
+                            <p class="nav-item nav-link">Welcome <span class="text-capitalize">{{request.user}}</span></p>
+                            <a href="{% url 'logout' %}" class="nav-item nav-link">Logout</a>
+                            {% else %}
                             <a href="login" class="nav-item nav-link">Login</a>
                             <a href="register" class="nav-item nav-link">Register</a>
+                            {% endif %}
                         </div>
                     </div>
                 </nav>

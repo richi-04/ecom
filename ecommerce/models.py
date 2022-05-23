@@ -17,7 +17,7 @@ class register(models.Model):
     def __str__(self):
         return self.username
 
-category_opt = [('dresses', 'Dresses'), ('shirts', 'Shirts'), ('jeans', 'Jeans'), ('swimwear','Swimwear'), ('sleepwear', 'Sleepwear'), ('sportswear', 'Sportswear'), ('jumpsuits', 'Jumpsuits'), ('blazers', 'Blazers'), ('jacket', 'Jackets')]
+category_opt = [('dresses', 'Dresses'), ('shirts', 'Shirts'), ('jeans', 'Jeans'), ('jumpsuits', 'Jumpsuits'), ('blazers', 'Blazers'), ('jacket', 'Jackets')]
 class Product(models.Model):
     objects = None
     p_name = models.CharField(max_length=50)
@@ -51,7 +51,7 @@ class cart(models.Model):
     quantity = models.PositiveIntegerField(default=1)
 
     def __str__(self):
-        return str(self.id)
+        return str(self.user)
 
 
 class contact(models.Model):

@@ -18,6 +18,7 @@ from django.urls import path
 from ecommerce import views
 from django.conf import settings
 from django.conf.urls.static import static 
+from django.contrib.auth import views as auth_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -31,5 +32,5 @@ urlpatterns = [
     path('detail<int:id>', views.detail, name="detail"),
     path('checkout', views.checkout, name="checkout"),
     path('cart', views.cart, name="cart"),
-    path('logged',views.logged,name="logged")
+    path('logout',auth_views.LogoutView.as_view(next_page='home'),name="logout")
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) 
