@@ -136,3 +136,4 @@ $('.cart').click(function(){
     localStorage.setItem('cart', JSON.stringify(cart));
     document.getElementById('cart').innerHTML = Object.keys(cart).length;
 });
+

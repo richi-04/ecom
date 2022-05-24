@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 
 class userform(forms.ModelForm):
     userchoices = [('buyer', 'Buyer'),('seller', 'Seller')] 
-    user = forms.ChoiceField(choices=userchoices, widget=forms.RadioSelect())
+    opt_user = forms.ChoiceField(choices=userchoices, widget=forms.RadioSelect(attrs={'class':'form-control'}))
     class meta:
-        model = register
-        fields = ('user')
+        model = User
+        fields = ('opt_user')

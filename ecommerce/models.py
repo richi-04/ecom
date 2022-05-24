@@ -11,7 +11,7 @@ class register(models.Model):
     username = models.CharField(max_length=100)
     email = models.EmailField()
     pswd = models.CharField(max_length=100)
-    user = models.CharField(choices=userchoices, max_length=100)
+    opt_user = models.CharField(choices=userchoices, max_length=100)
     
 
     def __str__(self):
@@ -26,6 +26,7 @@ class Product(models.Model):
     price = models.FloatField()
     discount_price = models.FloatField(default=0.0)
     image = models.ImageField(upload_to="img", default="")
+    
 
     def __str__(self):
         return str(self.id)
@@ -48,10 +49,10 @@ class customer(models.Model):
 class cart(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
-    quantity = models.PositiveIntegerField(default=1)
+    quantity = models.IntegerField(default=1)
 
     def __str__(self):
-        return str(self.user)
+        return str(self.product)
 
 
 class contact(models.Model):

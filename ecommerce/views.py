@@ -38,7 +38,7 @@ def userdata(request):
 
         messages.success(request, "Your account has been created...!!!!")
             
-        return redirect('register')
+        return redirect('login')
 
 
     return render(request, 'register.html')
@@ -65,14 +65,30 @@ def login_data(request):
     return render(request, 'login.html') 
 
 
-def shop(request):
+def shop(request, data=None):
     products = Product.objects.all().order_by("id")
-    paginator = Paginator(products, 8)
+    paginator = Paginator(products, 6)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
-    
 
-    return render(request, "shop.html", {'page_obj': page_obj})
+    if data == None:
+        shop = Product.objects.all()
+    elif data == 'dresses':
+       shop = Product.objects.filter(category='dresses').filter(category=data)
+    elif data == 'shirts':
+        shop = Product.objects.filter(category=data)
+    elif data == 'jeans':
+        shop = Product.objects.filter(category='jeans')
+    elif data == 'jumpsuits':
+        shop = Product.objects.filter(category='jumpsuits')
+    elif data == 'blazers':
+        shop = Product.objects.filter(category='blazers')
+    elif data == 'jacket':
+        shop = Product.objects.filter(category='jacket')
+
+        return redirect('shopfilter')
+
+    return render(request, "shop.html", {'page_obj': page_obj, 'shop':shop})
 
 
 def checkout(request):
@@ -127,17 +143,55 @@ def detail(request, id):
 
     return render(request, 'detail.html', context)
 
-def checkout(request):
-    return render(request, 'checkout.html')
+def show_cart(request):
+    if request.user.is_authenticated:
+        user = request.user
+        carts = cart.objects.filter(user=user)
+        print("🚀 ~ file: views.py ~ line 150 ~ cart1", carts)
+        amount = 0.0
+        shipping_amt = 80.0
+        total_amt = 0.0
+        cart_p = [p for p in cart.objects.all() if p.user == user]
+        if cart_p:
+            for p in cart_p:
+                tamt = (p.quantity * p.product.price)
+                amount += tamt
+                totalamt = amount + shipping_amt
+            return render(request, 'cart.html', {'carts':carts, 'totalamt':totalamt, 'amount':amount})
+        else:
+            return render(request, 'cart.html')
 
-def cart(request):
+def add_cart(request):
     user = request.user 
     print("🚀 ~ file: views.py ~ line 134 ~ user", user)
-    product = request.GET.get('p_id')
-    print("🚀 ~ file: views.py ~ line 135 ~ product", product)
-    cart(user=user, product=product).save()
-    print("🚀 ~ file: views.py ~ line 138 ~ c_cart", cart)
+    p_id = request.GET.get('p_id')
+    p_c = Product.objects.get(id=p_id)
+    print("🚀 ~ file: views.py ~ line 135 ~ product", p_c)
+    # quantity = request.POST.get('q')
+    # print("🚀 ~ file: views.py ~ line 154 ~ quantity", quantity)
+    cart1 = cart.objects.create(user=user, product=p_c)
+    cart1.save()
     
-    return render(request, 'cart.html')
+    return redirect('show_cart')
 
 
+def shopfilter(request, data=None):
+    if data == None:
+        shopfilter = Product.objects.all()
+    elif data == 'dresses':
+       shopfilter = Product.objects.filter(category='dresses').filter(category=data)
+    elif data == 'shirts':
+        shopfilter = Product.objects.filter(category=data)
+    elif data == 'jeans':
+        shopfilter = Product.objects.filter(category='jeans')
+    elif data == 'jumpsuits':
+        shopfilter = Product.objects.filter(category='jumpsuits')
+    elif data == 'blazers':
+        shopfilter = Product.objects.filter(category='blazers')
+    elif data == 'jacket':
+        shopfilter = Product.objects.filter(category='jacket')
+
+    return render(request, 'shopfilter.html', {'shopfilter':shopfilter})
+
+def checkout(request):
+    return render(request, 'checkout.html')

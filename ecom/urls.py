@@ -26,11 +26,13 @@ urlpatterns = [
     path('register', views.userdata, name="register"),
     path('login', views.login_data, name="login"),
     path('shop', views.shop, name="shop"),
+    path('shopfilter/<slug:data>', views.shopfilter, name="shopfilter"),
     path('checkout', views.checkout, name="checkout"),
     path('contact', views.Contact, name="contact"),
     path('search', views.search, name="search"),
     path('detail<int:id>', views.detail, name="detail"),
     path('checkout', views.checkout, name="checkout"),
-    path('cart', views.cart, name="cart"),
+    path('show_cart', views.show_cart, name="show_cart"),
+    path('add_cart', views.add_cart, name="add_cart"),
     path('logout',auth_views.LogoutView.as_view(next_page='home'),name="logout")
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) 
