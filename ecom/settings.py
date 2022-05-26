@@ -130,3 +130,11 @@ MEDIA_ROOT = BASE_DIR/ 'media'
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# RAZOR_KEY_ID = 'rzp_test_RYMLCw00sgXIe7'
+
+# RAZOR_KEY_SECRET = 'YpOTffph8Ge8JhtpDNRdhpJK'
+
+STRIPE_PUBLISHABLE_KEY = 'pk_test_51L3cVCSEjhFi33JdI9nNBSoKz0lmN1dvI4a6ZZi39v5FsNkszZwpHtOanLpBEqbNbRdZtfU4U2yXFHZlf1KOXmqC0004kndSeJ'
+
+STRIPE_SECRET_KEY = 'sk_test_51L3cVCSEjhFi33Jd7IPiM5knrLfLuUAzTm7UHy1btWJSLrqhb4OrZuwpii9QNCpiZQCGbDbbokFnLUlygwn3spfR00ksXqfK88'

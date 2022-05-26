@@ -38,26 +38,26 @@
                     </thead>
                     <tbody class="align-middle">
                         {% for c in carts %}
-                        <tr>
+                        <tr id="remove">
                             <td class="align-middle"><img src="{{c.product.image.url}}" alt="" style="width: 50px;">{{c.product.desc}}</td>
                             <td class="align-middle">{{c.product.price}}</td>
                             <td class="align-middle">
-                                <div class="input-group quantity mx-auto" style="width: 100px;">
+                                <div class="input-group quantity mx-auto" for="quantity" style="width: 100px;">
                                     <div class="input-group-btn">
-                                        <button class="btn btn-sm btn-primary btn-minus" >
+                                        <a class="btn btn-sm btn-primary btn-minus" c_id={{c.product.id}}>
                                         <i class="fa fa-minus"></i>
-                                        </button>
+                                        </a>
                                     </div>
-                                    <input type="text" class="form-control form-control-sm bg-secondary text-center" value="{{c.quantity}}">
+                                    <span class="form-control form-control-sm bg-secondary text-center" id="quantity">{{c.quantity}}</span>
                                     <div class="input-group-btn">
-                                        <button class="btn btn-sm btn-primary btn-plus">
+                                        <a class="btn btn-sm btn-primary btn-plus" c_id={{c.product.id}}>
                                             <i class="fa fa-plus"></i>
-                                        </button>
+                                        </a>
                                     </div>
                                 </div>
                             </td>
                             <td class="align-middle">{{c.product.price}}</td>
-                            <td class="align-middle"><button class="btn btn-sm btn-primary"><i class="fa fa-times"></i></button></td>
+                            <td class="align-middle"><button class="btn btn-sm btn-primary remove" c_id={{c.product.id}}><i class="fa fa-times"></i></button></td>
                         </tr>
                         {% endfor %}
                     </tbody>
@@ -79,7 +79,7 @@
                     <div class="card-body">
                         <div class="d-flex justify-content-between mb-3 pt-1">
                             <h6 class="font-weight-medium">Subtotal</h6>
-                            <h6 class="font-weight-medium">{{amount}}</h6>
+                            <h6 class="font-weight-medium"><span id="amount">{{amount}}</span></h6>
                         </div>
                         <div class="d-flex justify-content-between">
                             <h6 class="font-weight-medium">Shipping</h6>
@@ -89,7 +89,7 @@
                     <div class="card-footer border-secondary bg-transparent">
                         <div class="d-flex justify-content-between mt-2">
                             <h5 class="font-weight-bold">Total</h5>
-                            <h5 class="font-weight-bold">{{totalamt}}</h5>
+                            <h5 class="font-weight-bold"><span id="totalamt">{{totalamt}}</span></h5>
                         </div>
                         <button class="btn btn-block btn-primary my-3 py-3">Proceed To Checkout</button>
                     </div>

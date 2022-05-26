@@ -32,9 +32,8 @@ class Product(models.Model):
         return str(self.id)
 
 country_opt = [('india', 'India'), ('us', 'US'), ('afghanistan', 'Afghanistan'), ('albania', 'Albania'), ('algeria', 'Algeria')]
-class customer(models.Model):
+class shipping(models.Model):
     uname = models.ForeignKey(User, on_delete=models.CASCADE)
-    lname = models.CharField(max_length=100)
     email = models.EmailField()
     phone = models.CharField(max_length=10)
     address = models.CharField(max_length=100)
@@ -44,7 +43,7 @@ class customer(models.Model):
     code = models.IntegerField()
 
     def __str__(self):
-        return str(self.id)
+        return self.uname
 
 class cart(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)

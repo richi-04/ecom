@@ -1,23 +1,29 @@
-from unicodedata import category
+
 from django.shortcuts import render, redirect
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse, HttpResponseBadRequest
 from django.contrib import messages
-from .models import Product, register, customer, contact, cart
+from .models import Product, register, contact, cart, shipping
 from math import ceil
 from django.contrib.auth import authenticate,login
 from django.contrib.auth.hashers import make_password
 from django.views import View
 from django.core.paginator import Paginator
 from django.db.models import Q
-from django.contrib.auth.models import User, auth 
+from django.contrib.auth.models import User 
+# from django import razorpay
+from django.conf import settings
+from django.views.decorators.csrf import csrf_exempt
+import stripe
 
 # Create your views here.
+#----------------------------home page------------------------------------
+
 def home(request):
     p = Product.objects.all()
 
     return render(request, 'index.html', {'p':p})
 
-
+# ----------------------------------registration---------------------------------
 def userdata(request):
     if request.method == 'POST':
         fname = request.POST.get('fname')
@@ -42,7 +48,7 @@ def userdata(request):
 
 
     return render(request, 'register.html')
-
+# ------------------------login-----------------------------
 def login_data(request):
     if request.method == 'POST':
         uname = request.POST.get('username')
@@ -64,7 +70,7 @@ def login_data(request):
 
     return render(request, 'login.html') 
 
-
+# ---------------------displaying all product------------------------
 def shop(request, data=None):
     products = Product.objects.all().order_by("id")
     paginator = Paginator(products, 6)
@@ -90,24 +96,7 @@ def shop(request, data=None):
 
     return render(request, "shop.html", {'page_obj': page_obj, 'shop':shop})
 
-
-def checkout(request):
-    if request.method == 'POST':
-        uname = request.POST.get('uname')
-        lname = request.POST.get('lname')
-        email = request.POST.get('email')
-        phone = request.POST.get('email')
-        address = request.POST.get('address', '') + " " + request.POST.get('address1', '')
-        country = request.POST.get('country')
-        city = request.POST.get('city')
-        state = request.POST.get('state')
-        code = request.POST.get('code')
-
-        ship_detail = customer(uname=uname, lname=lname, email=email, phone=phone, address=address, country=country, city=city, state=state, code=code)
-        ship_detail.save()
-
-    return render(request, 'checkout.html')
-
+# ----------------------------customer query message.-----------------
 def Contact(request):
     if request.method == 'POST':
         name = request.POST.get('name')
@@ -143,24 +132,7 @@ def detail(request, id):
 
     return render(request, 'detail.html', context)
 
-def show_cart(request):
-    if request.user.is_authenticated:
-        user = request.user
-        carts = cart.objects.filter(user=user)
-        print("🚀 ~ file: views.py ~ line 150 ~ cart1", carts)
-        amount = 0.0
-        shipping_amt = 80.0
-        total_amt = 0.0
-        cart_p = [p for p in cart.objects.all() if p.user == user]
-        if cart_p:
-            for p in cart_p:
-                tamt = (p.quantity * p.product.price)
-                amount += tamt
-                totalamt = amount + shipping_amt
-            return render(request, 'cart.html', {'carts':carts, 'totalamt':totalamt, 'amount':amount})
-        else:
-            return render(request, 'cart.html')
-
+# -----------------------cart------------------------
 def add_cart(request):
     user = request.user 
     print("🚀 ~ file: views.py ~ line 134 ~ user", user)
@@ -175,6 +147,91 @@ def add_cart(request):
     return redirect('show_cart')
 
 
+def show_cart(request):
+    if request.user.is_authenticated:
+        user = request.user
+        carts = cart.objects.filter(user=user)
+        print("🚀 ~ file: views.py ~ line 150 ~ cart1", carts)
+        amount = 0.0
+        shipping_amt = 80.0
+        totalamt = 0.0
+        cart_p = [p for p in cart.objects.all() if p.user == user]
+        if cart_p:
+            for p in cart_p:
+                tamt = (p.quantity * p.product.price)
+                amount += tamt
+                totalamt = amount + shipping_amt
+            return render(request, 'cart.html', {'carts':carts, 'totalamt':totalamt, 'amount':amount})
+        
+    return render(request, 'cart.html')
+
+def pluscart(request):
+    if request.method == 'GET':
+        pro_id = request.GET['pro_id']
+        print("🚀 ~ file: views.py ~ line 168 ~ pro_id", pro_id)
+        c = cart.objects.get(Q(product=pro_id) & Q(user=request.user))
+        print("🚀 ~ file: views.py ~ line 170 ~ c", c)
+        c.quantity+=1
+        c.save()
+        amount = 0.0
+        shipping_amt = 80.0
+        cart_p = [p for p in cart.objects.all() if p.user == request.user]
+        for p in cart_p:
+            tamt = (p.quantity * p.product.price)
+            amount += tamt
+            totalamt = amount + shipping_amt
+
+        data = {
+            'quantity':c.quantity,
+            'amount':amount,
+            'totalamt': totalamt
+        } 
+
+    return JsonResponse(data)          
+
+
+def minuscart(request):
+    if request.method == 'GET':
+        pro_id = request.GET['pro_id']
+        c = cart.objects.get(Q(product=pro_id) & Q(user=request.user))
+        c.quantity-=1
+        c.save()
+        amount = 0.0
+        shipping_amt = 80.0
+        cart_p = [p for p in cart.objects.all() if p.user == request.user]
+        for p in cart_p:
+            tamt = (p.quantity * p.product.price)
+            amount += tamt
+            totalamt = amount + shipping_amt
+
+        data = {
+            'quantity':c.quantity,
+            'amount':amount,
+            'totalamt': totalamt
+        } 
+
+    return JsonResponse(data)  
+
+def remove(request):
+    if request.method == 'GET':
+        pro_id = request.GET['pro_id']
+        c = cart.objects.get(Q(product=pro_id) & Q(user=request.user))
+        c.delete()
+        print("🚀 ~ file: views.py ~ line 217 ~ c1", c)
+        amount = 0.0
+        shipping_amt = 80.0
+        cart_p = [p for p in cart.objects.all() if p.user == request.user]
+        for p in cart_p:
+            tamt = (p.quantity * p.product.price)
+            amount += tamt 
+        data = {
+            'amount':amount,
+            'totalamt': amount + shipping_amt
+        } 
+
+    return JsonResponse(data)  
+
+# ----------------shop category wise diaplay-----------------------
 def shopfilter(request, data=None):
     if data == None:
         shopfilter = Product.objects.all()
@@ -193,5 +250,94 @@ def shopfilter(request, data=None):
 
     return render(request, 'shopfilter.html', {'shopfilter':shopfilter})
 
+# --------------checkout---------------------
 def checkout(request):
+    if request.method == 'POST':
+        email = request.POST.get('email')
+        phone = request.POST.get('phone')
+        address = request.POST.get('address', '') + " " + request.POST.get('address1', '')
+        country = request.POST.get('country')
+        city = request.POST.get('city')
+        state = request.POST.get('state')
+        code = request.POST.get('code')
+
+        ship_detail = shipping(email=email, phone=phone, address=address, country=country, city=city, state=state, code=code)
+        ship_detail.save()
+
     return render(request, 'checkout.html')
+
+
+def checkout(request):
+    if request.user.is_authenticated:
+        user = request.user
+        check_c = cart.objects.filter(user=user)
+        print("🚀 ~ file: views.py ~ line 150 ~ cart1", check_c)
+        amount = 0.0
+        shipping_amt = 80.0
+        totalamt = 0.0
+        cart_c = [p for p in cart.objects.all() if p.user == user]
+        if cart_c:
+            for p in cart_c:
+                tamt = (p.quantity * p.product.price)
+                amount += tamt
+                totalamt = amount + shipping_amt
+        return render(request, 'checkout.html', {'check_c':check_c, 'totalamt':totalamt, 'amount':amount})
+        
+    return render(request, 'checkout.html')
+
+#--------------------checkout product view ----------------------
+
+def pview(request):
+    user = request.user 
+    p_id = request.GET.get('p_id')
+    p_c = Product.objects.get(id=p_id)
+    cart1 = cart.objects.create(user=user, product=p_c)
+    cart1.save()
+    return render(request, 'payment/productview.html')
+
+
+
+
+
+# ------------------payment--------------------
+
+@csrf_exempt
+def stripe_config(request):
+    if request.method == 'GET':
+        stripe_config = {'publicKey': settings.STRIPE_PUBLISHABLE_KEY}
+        return JsonResponse(stripe_config, safe=False)
+
+@csrf_exempt
+def create_checkout_session(request):
+    if request.method == 'GET':
+        domain_url = 'http://localhost:8000/'
+        stripe.api_key = settings.STRIPE_SECRET_KEY
+        try:
+            checkout_session = stripe.checkout.Session.create(
+            success_url=domain_url + 'success?session_id={CHECKOUT_SESSION_ID}',
+            cancel_url=domain_url + 'cancelled/',
+            payment_method_types=['card'],
+            mode='payment',
+            checkout = cart.objects.filter(id),
+            line_items=[
+                {
+                    'name': 'T-shirt',
+                    'quantity': '1',
+                    'currency': 'INR',
+                    'amount': '500',
+                }
+                ]
+            )
+            return JsonResponse({'sessionId': checkout_session['id']})
+        except Exception as e:
+            return JsonResponse({'error': str(e)})
+
+
+
+
+
+
+
+# # payment
+# razorpay_client = razorpay.Client(
+#     auth=(settings.RAZOR_KEY_ID, settings.RAZOR_KEY_SECRET))

@@ -27,12 +27,18 @@ urlpatterns = [
     path('login', views.login_data, name="login"),
     path('shop', views.shop, name="shop"),
     path('shopfilter/<slug:data>', views.shopfilter, name="shopfilter"),
-    path('checkout', views.checkout, name="checkout"),
     path('contact', views.Contact, name="contact"),
     path('search', views.search, name="search"),
     path('detail<int:id>', views.detail, name="detail"),
-    path('checkout', views.checkout, name="checkout"),
     path('show_cart', views.show_cart, name="show_cart"),
+    path('pluscart', views.pluscart),
+    path('minuscart', views.minuscart),
+    path('remove', views.remove),
     path('add_cart', views.add_cart, name="add_cart"),
-    path('logout',auth_views.LogoutView.as_view(next_page='home'),name="logout")
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) 
+    path('logout',auth_views.LogoutView.as_view(next_page='home'),name="logout"),
+    # path('checkout_dtl', views.checkout_dtl),
+    path('checkout', views.checkout, name="checkout"),
+    path('pview', views.pview, name="pview"),
+    path('config/', views.stripe_config),
+    path('create-checkout-session/', views.create_checkout_session)
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)  

@@ -137,3 +137,91 @@ $('.cart').click(function(){
     document.getElementById('cart').innerHTML = Object.keys(cart).length;
 });
 
+//quantity 
+$('.btn-plus').click(function(){
+    var id = $(this).attr("c_id").toString();
+    var cd = this.parentNode.children[2];
+    console.log(cd)
+    console.log(id)
+    $.ajax({
+        type: "GET",
+        url: "pluscart",
+        data: {
+            pro_id:id
+        },
+        success: function (data) {
+            console.log(data)
+            console.log('success')
+            // cd.innerText = data.quantity
+            $("#quantity").text(data.quantity)
+            document.getElementById('amount').innerText = data.amount
+            document.getElementById('totalamt').innerText = data.totalamt
+        }
+    })
+})
+
+$('.btn-minus').click(function(){
+    var id = $(this).attr("c_id").toString();
+    var cd = this.parentNode.children[2];
+    console.log(id)
+    $.ajax({
+        type: "GET",
+        url: "minuscart",
+        data: {
+            pro_id:id
+        },
+        success: function (data) {
+            console.log(data)
+            console.log('success')
+            // cd.innerText = data.quantity
+            $("#quantity").text(data.quantity)
+            document.getElementById('amount').innerText = data.amount
+            document.getElementById('totalamt').innerText = data.totalamt
+        }
+    })
+})
+
+$('.remove').click(function(){
+    var id = $(this).attr("c_id").toString();
+    var r = this
+    console.log(id)
+    $.ajax({
+        type: "GET",
+        url: "remove",
+        data: {
+            pro_id:id
+        },
+        success: function (data) {
+            console.log(data)
+            console.log('delete')
+            document.getElementById('amount').innerText = data.amount
+            document.getElementById('totalamt').innerText = data.totalamt
+            r.parentNode.parentNode.remove()
+            
+        }
+    })
+})
+
+
+//payment
+console.log('pay_ment time')
+fetch("/config/")
+.then((result) => { return result.json(); })
+.then((data) => {
+  // Initialize Stripe.js
+  const stripe = Stripe(data.publicKey);
+
+  document.querySelector(".pay").addEventListener("click", () => {
+    // Get Checkout Session ID
+    fetch("create-checkout-session")
+    .then((result) => { return result.json(); })
+    .then((data) => {
+      console.log(data);
+      // Redirect to Stripe Checkout
+      return stripe.redirectToCheckout({sessionId: data.sessionId})
+    })
+    .then((res) => {
+      console.log(res);
+    });
+  });
+});
