@@ -2,7 +2,7 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse, JsonResponse, HttpResponseBadRequest
 from django.contrib import messages
-from .models import Product, register, contact, cart, shipping
+from .models import Product, register, contact, cart, shipping, Check_pdtl
 from math import ceil
 from django.contrib.auth import authenticate,login
 from django.contrib.auth.hashers import make_password
@@ -27,15 +27,15 @@ def home(request):
 def userdata(request):
     if request.method == 'POST':
         fname = request.POST.get('fname')
-        print("🚀 ~ file: views.py ~ line 22 ~ fname", fname)
+        # print("🚀 ~ file: views.py ~ line 22 ~ fname", fname)
         lname = request.POST.get('lname')
-        print("🚀 ~ file: views.py ~ line 24 ~ lname", lname)
+        # print("🚀 ~ file: views.py ~ line 24 ~ lname", lname)
         username = request.POST.get('username')
-        print("🚀 ~ file: views.py ~ line 22 ~ username", username)
+        # print("🚀 ~ file: views.py ~ line 22 ~ username", username)
         email = request.POST.get('email')
-        print("🚀 ~ file: views.py ~ line 24 ~ email", email)
+        # print("🚀 ~ file: views.py ~ line 24 ~ email", email)
         pswd = request.POST.get('pswd')
-        print("🚀 ~ file: views.py ~ line 30 ~ pswd", pswd)
+        # print("🚀 ~ file: views.py ~ line 30 ~ pswd", pswd)
         pswd2 = request.POST.get('pswd2')
 
         
@@ -52,12 +52,12 @@ def userdata(request):
 def login_data(request):
     if request.method == 'POST':
         uname = request.POST.get('username')
-        print("🚀 ~ file: views.py ~ line 48 ~ uname", uname)
+        # print("🚀 ~ file: views.py ~ line 48 ~ uname", uname)
         pswd = request.POST.get('pswd')
-        print("🚀 ~ file: views.py ~ line 50 ~ pswd", pswd)
+        # print("🚀 ~ file: views.py ~ line 50 ~ pswd", pswd)
 
         user = authenticate(username=uname, password=pswd)
-        print("🚀 ~ file: views.py ~ line 53 ~ user", user)
+        # print("🚀 ~ file: views.py ~ line 53 ~ user", user)
 
         if user is not None:
             login(request,user)
@@ -100,16 +100,16 @@ def shop(request, data=None):
 def Contact(request):
     if request.method == 'POST':
         name = request.POST.get('name')
-        print("🚀 ~ file: views.py ~ line 89 ~ name", name)
+        # print("🚀 ~ file: views.py ~ line 89 ~ name", name)
         email = request.POST.get('email')
-        print("🚀 ~ file: views.py ~ line 91 ~ email", email)
+        # print("🚀 ~ file: views.py ~ line 91 ~ email", email)
         subject = request.POST.get('subject')
-        print("🚀 ~ file: views.py ~ line 93 ~ subject", subject)
+        # print("🚀 ~ file: views.py ~ line 93 ~ subject", subject)
         msg = request.POST.get('msg')
-        print("🚀 ~ file: views.py ~ line 95 ~ msg", msg)
+        # print("🚀 ~ file: views.py ~ line 95 ~ msg", msg)
 
         customer_dtl = contact(name=name, email=email, subject=subject, msg=msg)
-        print("🚀 ~ file: views.py ~ line 98 ~ customer_dtl", customer_dtl)
+        # print("🚀 ~ file: views.py ~ line 98 ~ customer_dtl", customer_dtl)
         customer_dtl.save()
 
     return render(request, 'contact.html')
@@ -135,13 +135,14 @@ def detail(request, id):
 # -----------------------cart------------------------
 def add_cart(request):
     user = request.user 
-    print("🚀 ~ file: views.py ~ line 134 ~ user", user)
+    # print("🚀 ~ file: views.py ~ line 134 ~ user", user)
     p_id = request.GET.get('p_id')
     p_c = Product.objects.get(id=p_id)
-    print("🚀 ~ file: views.py ~ line 135 ~ product", p_c)
+    # print("🚀 ~ file: views.py ~ line 135 ~ product", p_c)
     # quantity = request.POST.get('q')
     # print("🚀 ~ file: views.py ~ line 154 ~ quantity", quantity)
-    cart1 = cart.objects.create(user=user, product=p_c)
+    cart1 = cart.objects.create(user=user)
+    cart1.product.add(p_c)
     cart1.save()
     
     return redirect('show_cart')
@@ -151,26 +152,27 @@ def show_cart(request):
     if request.user.is_authenticated:
         user = request.user
         carts = cart.objects.filter(user=user)
-        print("🚀 ~ file: views.py ~ line 150 ~ cart1", carts)
         amount = 0.0
         shipping_amt = 80.0
         totalamt = 0.0
         cart_p = [p for p in cart.objects.all() if p.user == user]
+        print("🚀 ~ file: views.py ~ line 159 ~ cart_p", cart_p)
         if cart_p:
             for p in cart_p:
+                print("🚀 ~ file: views.py ~ line 162 ~ p", type(p))
                 tamt = (p.quantity * p.product.price)
                 amount += tamt
                 totalamt = amount + shipping_amt
-            return render(request, 'cart.html', {'carts':carts, 'totalamt':totalamt, 'amount':amount})
+            return render(request, 'cart.html', {'carts':carts, 'tamt':tamt, 'totalamt':totalamt, 'amount':amount})
         
     return render(request, 'cart.html')
 
 def pluscart(request):
     if request.method == 'GET':
         pro_id = request.GET['pro_id']
-        print("🚀 ~ file: views.py ~ line 168 ~ pro_id", pro_id)
+        # print("🚀 ~ file: views.py ~ line 168 ~ pro_id", pro_id)
         c = cart.objects.get(Q(product=pro_id) & Q(user=request.user))
-        print("🚀 ~ file: views.py ~ line 170 ~ c", c)
+        # print("🚀 ~ file: views.py ~ line 170 ~ c", c)
         c.quantity+=1
         c.save()
         amount = 0.0
@@ -217,7 +219,7 @@ def remove(request):
         pro_id = request.GET['pro_id']
         c = cart.objects.get(Q(product=pro_id) & Q(user=request.user))
         c.delete()
-        print("🚀 ~ file: views.py ~ line 217 ~ c1", c)
+        # print("🚀 ~ file: views.py ~ line 217 ~ c1", c)
         amount = 0.0
         shipping_amt = 80.0
         cart_p = [p for p in cart.objects.all() if p.user == request.user]
@@ -253,25 +255,37 @@ def shopfilter(request, data=None):
 # --------------checkout---------------------
 def checkout(request):
     if request.method == 'POST':
-        email = request.POST.get('email')
-        phone = request.POST.get('phone')
-        address = request.POST.get('address', '') + " " + request.POST.get('address1', '')
-        country = request.POST.get('country')
-        city = request.POST.get('city')
-        state = request.POST.get('state')
-        code = request.POST.get('code')
-
-        ship_detail = shipping(email=email, phone=phone, address=address, country=country, city=city, state=state, code=code)
+        if request.user.is_authenticated:
+            uname = request.user
+            print("🚀 ~ file: views.py ~ line 257 ~ uname", uname)
+            email = request.POST.get('email')
+            print("🚀 ~ file: views.py ~ line 257 ~ email", email)
+            phone = request.POST.get('phone')
+            print("🚀 ~ file: views.py ~ line 259 ~ phone", phone)
+            address = request.POST.get('address', '') + " " + request.POST.get('address1', '')
+            print("🚀 ~ file: views.py ~ line 261 ~ address", address)
+            country = request.POST.get('country')
+            print("🚀 ~ file: views.py ~ line 263 ~ country", country)
+            city = request.POST.get('city')
+            print("🚀 ~ file: views.py ~ line 265 ~ city", city)
+            state = request.POST.get('state')
+            print("🚀 ~ file: views.py ~ line 267 ~ state", state)
+            code = request.POST.get('code')
+            print("🚀 ~ file: views.py ~ line 269 ~ code", code)
+        
+        ship_detail = shipping(uname=uname, email=email, phone=phone, address=address, country=country, city=city, state=state, code=code)
         ship_detail.save()
 
-    return render(request, 'checkout.html')
+    return redirect('checkout')
 
 
-def checkout(request):
+def checkout_dtl(request):
     if request.user.is_authenticated:
         user = request.user
-        check_c = cart.objects.filter(user=user)
-        print("🚀 ~ file: views.py ~ line 150 ~ cart1", check_c)
+        ship = cart.objects.filter(user=user)
+        print("🚀 ~ file: views.py ~ line 283 ~ ship", ship)
+        ship1 = cart.objects.get(user=user)
+        print("🚀 ~ file: views.py ~ line 150 ~ cart1", ship)
         amount = 0.0
         shipping_amt = 80.0
         totalamt = 0.0
@@ -281,19 +295,37 @@ def checkout(request):
                 tamt = (p.quantity * p.product.price)
                 amount += tamt
                 totalamt = amount + shipping_amt
-        return render(request, 'checkout.html', {'check_c':check_c, 'totalamt':totalamt, 'amount':amount})
-        
-    return render(request, 'checkout.html')
+        ship1.finalamount = totalamt
+        ship1.save()    
+    return render(request, 'checkout.html', {'ship':ship, 'totalamt':totalamt, 'amount':amount})
 
-#--------------------checkout product view ----------------------
+def check_add(request):
+    active_user = User.objects.get(name=request.user)
+    detail = shipping.objects.all(active_user)
+    data = {
+        "ship_data" : detail
+    }
+    return render(request, 'checkout.html', {'data':data})
+        
+
+# #--------------------checkout product view ----------------------
 
 def pview(request):
-    user = request.user 
-    p_id = request.GET.get('p_id')
-    p_c = Product.objects.get(id=p_id)
-    cart1 = cart.objects.create(user=user, product=p_c)
-    cart1.save()
-    return render(request, 'payment/productview.html')
+    if request.user.is_authenticated:
+        user = request.user
+        carts = cart.objects.filter(user=user)
+        # print("🚀 ~ file: views.py ~ line 150 ~ cart1", carts)
+        amount = 0.0
+        shipping_amt = 80.0
+        totalamt = 0.0
+        cart_p = [p for p in cart.objects.all() if p.user == user]
+        if cart_p:
+            for p in cart_p:
+                tamt = (p.quantity * p.product.price)
+                amount += tamt
+                totalamt = amount + shipping_amt
+
+    return render(request, 'payment/productview.html', {'carts':carts, 'totalamt':totalamt, 'amount':amount})
 
 
 
@@ -310,21 +342,22 @@ def stripe_config(request):
 @csrf_exempt
 def create_checkout_session(request):
     if request.method == 'GET':
+        checkoutbtn = cart.objects.get(id=id)
         domain_url = 'http://localhost:8000/'
         stripe.api_key = settings.STRIPE_SECRET_KEY
+        
         try:
             checkout_session = stripe.checkout.Session.create(
             success_url=domain_url + 'success?session_id={CHECKOUT_SESSION_ID}',
             cancel_url=domain_url + 'cancelled/',
             payment_method_types=['card'],
             mode='payment',
-            checkout = cart.objects.filter(id),
             line_items=[
                 {
-                    'name': 'T-shirt',
-                    'quantity': '1',
+                    'name': '{{product.p_name}}',
+                    'quantity': '{{1}}',
                     'currency': 'INR',
-                    'amount': '500',
+                    'amount': '{{500}}',
                 }
                 ]
             )

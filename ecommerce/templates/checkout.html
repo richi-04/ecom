@@ -50,7 +50,7 @@
                         </div>
                         <div class="col-md-6 form-group">
                             <label>Country</label>
-                            <select class="custom-select">
+                            <select class="custom-select" name="country">
                                 <option>India</option>
                                 <option>US</option>
                                 <option>Afghanistan</option>
@@ -75,12 +75,15 @@
                         </div>
                         {% comment %} <div class="col-md-12 form-group">
                             <div class="custom-control custom-checkbox">
+<<<<<<< HEAD
+=======
                                 <input type="checkbox" class="custom-control-input" id="newaccount">
                                 <label class="custom-control-label" for="newaccount">Create an account</label>
                             </div>
                         </div> {% endcomment %}
                         <div class="col-md-12 form-group">
                             <div class="custom-control custom-checkbox">
+>>>>>>> 2cc71b3c0d80fac688ccde2fa9a78c8385f0117d
                                 <input type="checkbox" class="custom-control-input" id="shipto">
                                 <label class="custom-control-label" for="shipto"  data-toggle="collapse" data-target="#shipping-address">Ship to different address</label>
                             </div>
@@ -89,7 +92,7 @@
                 </form>
                 </div>
                 <div class="collapse mb-4" id="shipping-address">
-                    <h4 class="font-weight-semi-bold mb-4">Shipping Address</h4>
+                    <h4 class="font-weight-semi-bold mb-4">Shipping To Other Address</h4>
                     <div class="row">
                         <div class="col-md-6 form-group">
                             <label>First Name</label>
@@ -117,7 +120,7 @@
                         </div>
                         <div class="col-md-6 form-group">
                             <label name="country">Country</label>
-                            <select class="custom-select">
+                            <select class="custom-select" name="country">
                                 <option selected>United States</option>
                                 <option>Afghanistan</option>
                                 <option>Albania</option>
@@ -145,8 +148,9 @@
                         <h4 class="font-weight-semi-bold m-0">Order Total</h4>
                     </div>
                     <div class="card-body">
-                        <h5 class="font-weight-medium mb-3">Products</h5>
                         {% for c in check_c %}
+                        <h5 class="font-weight-medium mb-3">Products</h5>
+                        {% for c in ship %}
                         <div class="d-flex justify-content-between">
                             <p>{{c.product.desc}}</p>
                             <p>{{c.product.price}}</p>
@@ -166,6 +170,29 @@
                         <div class="d-flex justify-content-between mt-2">
                             <h5 class="font-weight-bold">Total</h5>
                             <h5 class="font-weight-bold"><span id="totalamt">{{totalamt}}</span></h5>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="card-footer border-secondary bg-transparent">
+                    <button class="btn btn-lg btn-block btn-primary font-weight-bold my-3 py-3 pay" id="checkoutbtn">Place Order</button>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="card border-secondary mb-5">
+                    <div class="card-header bg-secondary border-0">
+                        <h4 class="font-weight-semi-bold m-0">Address</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <h5 class="font-weight-bold">{{request.user}}</h5>
+                            {% for s in data %}
+                            <p>{{s.address}}</p>
+                            <p>{{s.shipping.phone}}</p>
+                            <p>{{s.shipping.state}}</p>
+                            <p>{{s.shipping.city}}</p>
+                            <p>{{s.shipping.code}}</p>
+                            {% endfor %}
                         </div>
                     </div>
                 </div>
