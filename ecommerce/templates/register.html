@@ -8,7 +8,7 @@
      <!-- Page Header Start -->
      <div class="container-fluid bg-secondary mb-5">
         <div class="d-flex flex-column align-items-center justify-content-center" style="min-height: 300px">
-            <h1 class="font-weight-semi-bold text-uppercase mb-3">Checkout</h1>
+            <h1 class="font-weight-semi-bold text-uppercase mb-3">Registration</h1>
             <div class="d-inline-flex">
                 <p class="m-0"><a href="">Home</a></p>
                 <p class="m-0 px-2">-</p>
@@ -52,21 +52,21 @@
                                     <label>Password</label>
                                     <input name="pswd2" class="form-control" type="Password" placeholder="1223@Asdw">
                                 </div> 
-                                <div class="col-md-6 form-group">
+                                {% comment %} <div class="col-md-6 form-group">
                                     <input class="form-control" type="radio" id="buyer" name="user" value="buyer">
                                     <label for="buyer">Buyer</label><br>
                                     <input class="form-control" type="radio" id="Seller" name="user" value="seller">
                                     <label for="seller">Seller</label><br>
-                                </div> 
+                                </div>  {% endcomment %}
                                 <div class="col-md-6 form-group">
                                     <input type="submit" value="Register" class="btn btn-primary px-3">
                                 </div>
-                    </form>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-
-    {% endblock %}
+{% endblock %}

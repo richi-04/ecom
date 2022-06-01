@@ -140,7 +140,6 @@ $('.cart').click(function(){
 //quantity 
 $('.btn-plus').click(function(){
     var id = $(this).attr("c_id").toString();
-    var cd = this.parentNode.children[2];
     console.log(cd)
     console.log(id)
     $.ajax({
@@ -204,24 +203,24 @@ $('.remove').click(function(){
 
 
 //payment
-console.log('pay_ment time')
-fetch("/config/")
-.then((result) => { return result.json(); })
-.then((data) => {
-  // Initialize Stripe.js
-  const stripe = Stripe(data.publicKey);
+// console.log('pay_ment time')
+// fetch("/config/")
+// .then((result) => { return result.json(); })
+// .then((data) => {
+//   // Initialize Stripe.js
+//   const stripe = Stripe(data.publicKey);
 
-  document.querySelector(".pay").addEventListener("click", () => {
-    // Get Checkout Session ID
-    fetch("create-checkout-session")
-    .then((result) => { return result.json(); })
-    .then((data) => {
-      console.log(data);
-      // Redirect to Stripe Checkout
-      return stripe.redirectToCheckout({sessionId: data.sessionId})
-    })
-    .then((res) => {
-      console.log(res);
-    });
-  });
-});
+//   document.querySelector(".pay").addEventListener("click", () => {
+//     // Get Checkout Session ID
+//     fetch("create-checkout-session")
+//     .then((result) => { return result.json(); })
+//     .then((data) => {
+//       console.log(data);
+//       // Redirect to Stripe Checkout
+//       return stripe.redirectToCheckout({sessionId: data.sessionId})
+//     })
+//     .then((res) => {
+//       console.log(res);
+//     });
+//   });
+// });

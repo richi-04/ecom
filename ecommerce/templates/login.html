@@ -9,7 +9,7 @@
     <!-- Page Header Start -->
     <div class="container-fluid bg-secondary mb-5">
         <div class="d-flex flex-column align-items-center justify-content-center" style="min-height: 300px">
-            <h1 class="font-weight-semi-bold text-uppercase mb-3">Checkout</h1>
+            <h1 class="font-weight-semi-bold text-uppercase mb-3">Login</h1>
             <div class="d-inline-flex">
                 <p class="m-0"><a href="">Home</a></p>
                 <p class="m-0 px-2">-</p>
@@ -28,7 +28,7 @@
                     <div class="row">
                         <div class="col-md-6 form-group">
                             <form method='Post'>
-                                {% csrf_token %}
+                             {% csrf_token %}
                             <label>User Name</label>
                             <input name="username" class="form-control" type="text" placeholder="John">
                         </div>

@@ -26,70 +26,63 @@
                 <div class="mb-4">
                     <h4 class="font-weight-semi-bold mb-4">Billing Address</h4>
                     <form method='POST'>
-                        {% csrf_token %}
-                    <div class="row">
-                        <div class="col-md-6 form-group">
-                            <label>Name</label>
-                            <input name="uname" class="form-control" type="text" placeholder="John" value="{{request.user}}">
-                        </div>
-                        <div class="col-md-6 form-group">
-                            <label>E-mail</label>
-                            <input name="email" class="form-control" type="text" placeholder="example@email.com">
-                        </div>
-                        <div class="col-md-6 form-group">
-                            <label>Mobile No</label>
-                            <input name="phone" class="form-control" type="text" placeholder="+123 456 789">
-                        </div>
-                        <div class="col-md-6 form-group">
-                            <label>Address Line 1</label>
-                            <input name="address" class="form-control" type="text" placeholder="123 Street">
-                        </div>
-                        <div class="col-md-6 form-group">
-                            <label>Address Line 2</label>
-                            <input name="address1" class="form-control" type="text" placeholder="123 Street">
-                        </div>
-                        <div class="col-md-6 form-group">
-                            <label>Country</label>
-                            <select class="custom-select" name="country">
-                                <option>India</option>
-                                <option>US</option>
-                                <option>Afghanistan</option>
-                                <option>Albania</option>
-                                <option>Algeria</option>
-                            </select>
-                        </div>
-                        <div class="col-md-6 form-group">
-                            <label>City</label>
-                            <input name="city" class="form-control" type="text" placeholder="New York">
-                        </div>
-                        <div class="col-md-6 form-group">
-                            <label>State</label>
-                            <input name="state" class="form-control" type="text" placeholder="New York">
-                        </div>
-                        <div class="col-md-6 form-group">
-                            <label>ZIP Code</label>
-                            <input name="code" class="form-control" type="text" placeholder="123">
-                        </div>
-                        <div class="col-md-6 form-group">
-                            <input type="submit" value="submit" class="btn btn-primary px-3">
-                        </div>
-                        {% comment %} <div class="col-md-12 form-group">
-                            <div class="custom-control custom-checkbox">
-<<<<<<< HEAD
-=======
-                                <input type="checkbox" class="custom-control-input" id="newaccount">
-                                <label class="custom-control-label" for="newaccount">Create an account</label>
+                    {% csrf_token %}
+                        <div class="row">
+                            <div class="col-md-6 form-group">
+                                <label>Name</label>
+                                <input name="uname" class="form-control" type="text" placeholder="John" value="{{request.user}}">
                             </div>
-                        </div> {% endcomment %}
-                        <div class="col-md-12 form-group">
-                            <div class="custom-control custom-checkbox">
->>>>>>> 2cc71b3c0d80fac688ccde2fa9a78c8385f0117d
-                                <input type="checkbox" class="custom-control-input" id="shipto">
-                                <label class="custom-control-label" for="shipto"  data-toggle="collapse" data-target="#shipping-address">Ship to different address</label>
+                            <div class="col-md-6 form-group">
+                                <label>E-mail</label>
+                                <input name="email" class="form-control" type="text" placeholder="example@email.com">
+                            </div>
+                            <div class="col-md-6 form-group">
+                                <label>Mobile No</label>
+                                <input name="phone" class="form-control" type="text" placeholder="+123 456 789">
+                            </div>
+                            <div class="col-md-6 form-group">
+                                <label>Address Line 1</label>
+                                <input name="address" class="form-control" type="text" placeholder="123 Street">
+                            </div>
+                            <div class="col-md-6 form-group">
+                                <label>Address Line 2</label>
+                                <input name="address1" class="form-control" type="text" placeholder="123 Street">
+                            </div>
+                            <div class="col-md-6 form-group">
+                                <label>Country</label>
+                                <select class="custom-select" name="country">
+                                    <option>India</option>
+                                    <option>US</option>
+                                    <option>Afghanistan</option>
+                                    <option>Albania</option>
+                                    <option>Algeria</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 form-group">
+                                <label>City</label>
+                                <input name="city" class="form-control" type="text" placeholder="New York">
+                            </div>
+                            <div class="col-md-6 form-group">
+                                <label>State</label>
+                                <input name="state" class="form-control" type="text" placeholder="New York">
+                            </div>
+                            <div class="col-md-6 form-group">
+                                <label>ZIP Code</label>
+                                <input name="code" class="form-control" type="text" placeholder="123">
+                            </div>
+                            <div class="col-md-6 form-group">
+                                <input type="submit" value="submit" class="btn btn-primary px-3">
+                            </div>
+                        </form>
+                            <div class="col-md-12 form-group">
+                                <div class="custom-control custom-checkbox">
+
+                                    <input type="checkbox" class="custom-control-input" id="shipto">
+                                    <label class="custom-control-label" for="shipto"  data-toggle="collapse" data-target="#shipping-address">Ship to different address</label>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </form>
+                    
                 </div>
                 <div class="collapse mb-4" id="shipping-address">
                     <h4 class="font-weight-semi-bold mb-4">Shipping To Other Address</h4>
@@ -148,15 +141,16 @@
                         <h4 class="font-weight-semi-bold m-0">Order Total</h4>
                     </div>
                     <div class="card-body">
-                        {% for c in check_c %}
+                        {% for c in ship  %}
                         <h5 class="font-weight-medium mb-3">Products</h5>
-                        {% for c in ship %}
+                        
                         <div class="d-flex justify-content-between">
                             <p>{{c.product.desc}}</p>
                             <p>{{c.product.price}}</p>
                         </div>
                         {% endfor %}
                         <hr class="mt-0">
+                       
                         <div class="d-flex justify-content-between mb-3 pt-1">
                             <h6 class="font-weight-medium">Subtotal</h6>
                             <h6 class="font-weight-medium"><span id="amount">{{amount}}</span></h6>
@@ -172,10 +166,10 @@
                             <h5 class="font-weight-bold"><span id="totalamt">{{totalamt}}</span></h5>
                         </div>
                     </div>
-
+                 
                 </div>
                 <div class="card-footer border-secondary bg-transparent">
-                    <button class="btn btn-lg btn-block btn-primary font-weight-bold my-3 py-3 pay" id="checkoutbtn">Place Order</button>
+                    <button class="btn btn-lg btn-block btn-primary font-weight-bold my-3 py-3 pay" href="{% url 'create_checkout_session' "all_price" %}" id="checkout-button">Place Order</button>
                 </div>
             </div>
             <div class="col-lg-4">
@@ -186,8 +180,8 @@
                     <div class="card-body">
                         <div class="d-flex justify-content-between">
                             <h5 class="font-weight-bold">{{request.user}}</h5>
-                            {% for s in data %}
-                            <p>{{s.address}}</p>
+                            {% for s in detail %}
+                            <p>{{s.shippingaddress}}</p>
                             <p>{{s.shipping.phone}}</p>
                             <p>{{s.shipping.state}}</p>
                             <p>{{s.shipping.city}}</p>
@@ -201,6 +195,47 @@
     </div>
 </div>
     <!-- Checkout End -->
+</div>
+</div>
+<!-- Add JavaScript Here-->
+<script src="https://js.stripe.com/v3/"></script>
+<script type="text/javascript">
+// Create an instance of the Stripe object with your publishable API key
+var stripe = Stripe('{{ stripe_publishable_key }}');
+var checkoutButton = document.getElementById('checkout-button');
+console.log('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
+
+checkoutButton.addEventListener('click', function () {
+
+fetch("{% url 'create_checkout_session' id="all_price" %}", {
+  method: 'POST',
+  body: JSON.stringify(
+      { email: "abc@gmail.com" }
+  )
+})
+.then(function (response) {
+  console.log('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>',response)
+  return response.json();
+  })
+  .then(function (session) {
+      return stripe.redirectToCheckout({ sessionId: session.sessionId });
+  })
+  .then(function (result) {
+      // If `redirectToCheckout` fails due to a browser or network
+      // error, you should display the localized error message to your
+      // customer using `error.message`.
+      if (result.error) {
+          alert(result.error.message);
+      }
+  })
+  .catch(function (error) {
+      console.error('Error:', error);
+  });
+});
+</script> 
+
+
+
 
 
    {% endblock %}

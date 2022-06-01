@@ -1,8 +1,8 @@
 
 from django.shortcuts import render, redirect
-from django.http import HttpResponse, JsonResponse, HttpResponseBadRequest
+from django.http import HttpResponse, JsonResponse,HttpResponseNotFound
 from django.contrib import messages
-from .models import Product, register, contact, cart, shipping, Check_pdtl
+from .models import Product, contact, cart, shipping, OrderDetail
 from math import ceil
 from django.contrib.auth import authenticate,login
 from django.contrib.auth.hashers import make_password
@@ -14,6 +14,8 @@ from django.contrib.auth.models import User
 from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
 import stripe
+from django.views.generic import TemplateView
+from django.urls import reverse
 
 # Create your views here.
 #----------------------------home page------------------------------------
@@ -137,12 +139,13 @@ def add_cart(request):
     user = request.user 
     # print("🚀 ~ file: views.py ~ line 134 ~ user", user)
     p_id = request.GET.get('p_id')
+    # print("🚀 ~ file: views.py ~ line 140 ~ p_id", p_id)
     p_c = Product.objects.get(id=p_id)
     # print("🚀 ~ file: views.py ~ line 135 ~ product", p_c)
-    # quantity = request.POST.get('q')
+    # quantity = request.POST.get('cart')
     # print("🚀 ~ file: views.py ~ line 154 ~ quantity", quantity)
-    cart1 = cart.objects.create(user=user)
-    cart1.product.add(p_c)
+    cart1 = cart.objects.create(user=user, product=p_c)
+    # print("🚀 ~ file: views.py ~ line 145 ~ cart1", cart1)
     cart1.save()
     
     return redirect('show_cart')
@@ -156,23 +159,25 @@ def show_cart(request):
         shipping_amt = 80.0
         totalamt = 0.0
         cart_p = [p for p in cart.objects.all() if p.user == user]
-        print("🚀 ~ file: views.py ~ line 159 ~ cart_p", cart_p)
+        # print("🚀 ~ file: views.py ~ line 159 ~ cart_p", cart_p)
         if cart_p:
             for p in cart_p:
-                print("🚀 ~ file: views.py ~ line 162 ~ p", type(p))
+                # print("🚀 ~ file: views.py ~ line 162 ~ p", p)
                 tamt = (p.quantity * p.product.price)
                 amount += tamt
                 totalamt = amount + shipping_amt
-            return render(request, 'cart.html', {'carts':carts, 'tamt':tamt, 'totalamt':totalamt, 'amount':amount})
+            
         
+            return render(request, 'cart.html', {'carts':carts, 'tamt':tamt, 'totalamt':totalamt})
+
     return render(request, 'cart.html')
 
 def pluscart(request):
     if request.method == 'GET':
         pro_id = request.GET['pro_id']
-        # print("🚀 ~ file: views.py ~ line 168 ~ pro_id", pro_id)
+        print("🚀 ~ file: views.py ~ line 168 ~ pro_id", pro_id)
         c = cart.objects.get(Q(product=pro_id) & Q(user=request.user))
-        # print("🚀 ~ file: views.py ~ line 170 ~ c", c)
+        print("🚀 ~ file: views.py ~ line 170 ~ c", c)
         c.quantity+=1
         c.save()
         amount = 0.0
@@ -218,8 +223,9 @@ def remove(request):
     if request.method == 'GET':
         pro_id = request.GET['pro_id']
         c = cart.objects.get(Q(product=pro_id) & Q(user=request.user))
+        print("🚀 ~ file: views.py ~ line 222 ~ c", c)
         c.delete()
-        # print("🚀 ~ file: views.py ~ line 217 ~ c1", c)
+        print("🚀 ~ file: views.py ~ line 217 ~ c1", c)
         amount = 0.0
         shipping_amt = 80.0
         cart_p = [p for p in cart.objects.all() if p.user == request.user]
@@ -253,7 +259,8 @@ def shopfilter(request, data=None):
     return render(request, 'shopfilter.html', {'shopfilter':shopfilter})
 
 # --------------checkout---------------------
-def checkout(request):
+
+def checkoutaddress(request):
     if request.method == 'POST':
         if request.user.is_authenticated:
             uname = request.user
@@ -276,16 +283,17 @@ def checkout(request):
         ship_detail = shipping(uname=uname, email=email, phone=phone, address=address, country=country, city=city, state=state, code=code)
         ship_detail.save()
 
-    return redirect('checkout')
+        return redirect('checkout')
+
+    return render(request, 'checkout.html')
 
 
 def checkout_dtl(request):
+    print("hello")
     if request.user.is_authenticated:
         user = request.user
         ship = cart.objects.filter(user=user)
-        print("🚀 ~ file: views.py ~ line 283 ~ ship", ship)
-        ship1 = cart.objects.get(user=user)
-        print("🚀 ~ file: views.py ~ line 150 ~ cart1", ship)
+        print("🚀 ~ file: views.py ~ line 283 ~ ship",ship)
         amount = 0.0
         shipping_amt = 80.0
         totalamt = 0.0
@@ -295,42 +303,10 @@ def checkout_dtl(request):
                 tamt = (p.quantity * p.product.price)
                 amount += tamt
                 totalamt = amount + shipping_amt
-        ship1.finalamount = totalamt
-        ship1.save()    
-    return render(request, 'checkout.html', {'ship':ship, 'totalamt':totalamt, 'amount':amount})
+           
+    return render(request, 'checkout.html', {'ship':ship, 'totalamt':totalamt, 'amount':amount ,'stripe_publishable_key':settings.STRIPE_PUBLISHABLE_KEY})
 
-def check_add(request):
-    active_user = User.objects.get(name=request.user)
-    detail = shipping.objects.all(active_user)
-    data = {
-        "ship_data" : detail
-    }
-    return render(request, 'checkout.html', {'data':data})
         
-
-# #--------------------checkout product view ----------------------
-
-def pview(request):
-    if request.user.is_authenticated:
-        user = request.user
-        carts = cart.objects.filter(user=user)
-        # print("🚀 ~ file: views.py ~ line 150 ~ cart1", carts)
-        amount = 0.0
-        shipping_amt = 80.0
-        totalamt = 0.0
-        cart_p = [p for p in cart.objects.all() if p.user == user]
-        if cart_p:
-            for p in cart_p:
-                tamt = (p.quantity * p.product.price)
-                amount += tamt
-                totalamt = amount + shipping_amt
-
-    return render(request, 'payment/productview.html', {'carts':carts, 'totalamt':totalamt, 'amount':amount})
-
-
-
-
-
 # ------------------payment--------------------
 
 @csrf_exempt
@@ -340,37 +316,74 @@ def stripe_config(request):
         return JsonResponse(stripe_config, safe=False)
 
 @csrf_exempt
-def create_checkout_session(request):
-    if request.method == 'GET':
-        checkoutbtn = cart.objects.get(id=id)
-        domain_url = 'http://localhost:8000/'
+def create_checkout_session(request, id):
+    
+    if id == 'all_price':
+        request_data = request.user.email
+        # ALL PRODUCT PRICE
+        amount = 0.0
+        shipping_amt = 80.0
+        totalamt = 0.0
+        cart_c = [p for p in cart.objects.all() if p.user == request.user]
+        if cart_c:
+            for p in cart_c:
+                tamt = (p.quantity * p.product.price)
+                amount += tamt
+                totalamt = amount + shipping_amt
+        print(type(totalamt))
+        # product = get_object_or_404(MyCart, pk=id)
         stripe.api_key = settings.STRIPE_SECRET_KEY
-        
-        try:
-            checkout_session = stripe.checkout.Session.create(
-            success_url=domain_url + 'success?session_id={CHECKOUT_SESSION_ID}',
-            cancel_url=domain_url + 'cancelled/',
-            payment_method_types=['card'],
-            mode='payment',
+        checkout_session = stripe.checkout.Session.create(
+            
+            # Customer Email is optional,
+            # It is not safe to accept email directly from the client side
+            customer_email = 'abc@gmail.com',
+            payment_method_types = ['card'],
             line_items=[
                 {
-                    'name': '{{product.p_name}}',
-                    'quantity': '{{1}}',
-                    'currency': 'INR',
-                    'amount': '{{500}}',
+                    'price_data': {
+                        'currency': 'INR',
+                        'product_data': {
+                        'name': "All Products",
+                        },
+                        'unit_amount': int(totalamt)*100,
+                        
+                    },
+                    'quantity': 1,
                 }
-                ]
-            )
-            return JsonResponse({'sessionId': checkout_session['id']})
-        except Exception as e:
-            return JsonResponse({'error': str(e)})
+            ],
+            mode='payment',
+            success_url=request.build_absolute_uri(
+                reverse('success')
+            ) + "?session_id={CHECKOUT_SESSION_ID}",
+            cancel_url=request.build_absolute_uri(reverse('failed')),
+        )
+        print('request.build_absolute_uri ___________++++++++++++++++++_______________',request.build_absolute_uri)
+        order = OrderDetail()
+        order.customer_email = 'abc@gmail.com'
+        order.stripe_payment_intent = checkout_session['payment_intent']
+        order.amount = int(totalamt)*100
+        order.save()
+
+        # return JsonResponse({'data': checkout_session})
+        return JsonResponse({'sessionId': checkout_session.id})
+
+class paymentsuccess(TemplateView):
+    template_name = "payment/success.html"
+    def get(self, request, *args, **kwargs):
+        current_user  = request.user
+        val = current_user
+        session_id = request.GET.get('session_id')
+        if session_id is None:
+            return HttpResponseNotFound()
+        
+        stripe.api_key = settings.STRIPE_SECRET_KEY
+        session = stripe.checkout.Session.retrieve(session_id)
+
+        return render(request, self.template_name, {'uname':val})
+
+class PaymentFailedView(TemplateView):
+    template_name = "payment/fail.html"
 
 
 
-
-
-
-
-# # payment
-# razorpay_client = razorpay.Client(
-#     auth=(settings.RAZOR_KEY_ID, settings.RAZOR_KEY_SECRET))

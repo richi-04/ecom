@@ -4,18 +4,7 @@ from django.contrib.auth.models import User
 
 
 # Create your models here.
-userchoices = [('buyer', 'Buyer'),('seller', 'Seller')] 
-class register(models.Model):
-    fname = models.CharField(max_length=100)
-    lname = models.CharField(max_length=100)
-    username = models.CharField(max_length=100)
-    email = models.EmailField()
-    pswd = models.CharField(max_length=100)
-    opt_user = models.CharField(choices=userchoices, max_length=100)
-    
 
-    def __str__(self):
-        return self.username
 
 category_opt = [('dresses', 'Dresses'), ('shirts', 'Shirts'), ('jeans', 'Jeans'), ('jumpsuits', 'Jumpsuits'), ('blazers', 'Blazers'), ('jacket', 'Jackets')]
 class Product(models.Model):
@@ -26,19 +15,16 @@ class Product(models.Model):
     price = models.FloatField()
     discount_price = models.FloatField(default=0.0)
     image = models.ImageField(upload_to="img", default="")
+    stripe_product_id = models.CharField(max_length=100)
     
 
     def __str__(self):
         return str(self.id)
 
 country_opt = [('india', 'India'), ('us', 'US'), ('afghanistan', 'Afghanistan'), ('albania', 'Albania'), ('algeria', 'Algeria')]
-<<<<<<< HEAD
+
 class shipping(models.Model):
     uname = models.ForeignKey(User, on_delete=models.CASCADE)
-=======
-class customer(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
->>>>>>> 2cc71b3c0d80fac688ccde2fa9a78c8385f0117d
     email = models.EmailField()
     phone = models.CharField(max_length=10)
     address = models.CharField(max_length=100)
@@ -47,18 +33,14 @@ class customer(models.Model):
     state = models.CharField(max_length=100)
     code = models.IntegerField()
 
-<<<<<<< HEAD
     
-=======
-    def __str__(self):
-        return self.user
 
->>>>>>> 2cc71b3c0d80fac688ccde2fa9a78c8385f0117d
 class cart(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     quantity = models.IntegerField(default=1)
-    finalamount = models.CharField(max_length=200, null=True)
+    
+
     def __str__(self):
         return str(self.product)
 
@@ -74,7 +56,18 @@ class contact(models.Model):
 
 class Check_pdtl(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    productname = models.ForeignKey(Product, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
     productquantity = models.ForeignKey(cart, on_delete=models.CASCADE)
+    amt = models.DecimalField(max_digits=10, decimal_places=2)
+    stripe_amt = models.CharField(max_length=100)
     
-    
+class OrderDetail(models.Model):
+
+    id = models.BigAutoField(primary_key=True)
+    customer_email= models.EmailField(verbose_name='Customer Email')
+    product= models.ForeignKey(to =cart, verbose_name='Product',  on_delete=models.CASCADE, null=True)
+    amount = models.IntegerField(verbose_name='Amount')
+    stripe_payment_intent= models.CharField(max_length=200)
+    has_paid = models.BooleanField(default=False, verbose_name='Payment Status')
+    created_on = models.DateTimeField(auto_now_add=True)
+    updated_on = models.DateTimeField(auto_now_add=True)
